@@ -42,11 +42,13 @@ def Accuracy(label, prediction):
 
     return accuracy_score(label, prediction)
 
-def Explore_Data(X, y):
+def Explore_Data(X, y, Xt):
     #Prints basic statistics about data    
     
     print "Number of training examples: "    
     print np.shape(X)[0]
+    print "Number of test problems: "    
+    print np.shape(Xt)[0]
     print  "Number of features:"
     print np.shape(X)[1]
     print "Number of classification catagories:"    
@@ -153,7 +155,7 @@ def Main():
     X_cvtrain, y_cvtrain, X_cvtest, y_cvtest = Create_CVset(X_train, y_train)
         
     #Basic Statistics of Data
-    Explore_Data(X_train, y_train)
+    Explore_Data(X_train, y_train, X_test)
 
     #Feature Engineering
     

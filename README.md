@@ -13,4 +13,4 @@ https://www.kaggle.com/c/forest-cover-type-prediction
 
 To run project please see:
 
-```Main.py```
+Main.py
