@@ -72,6 +72,35 @@ def Plot_Data(X,y):
     Create_Plot(X.ix[:,'Cover_Type'], X.ix[:,'Wilderness_Area2'])
     Create_Plot(X.ix[:,'Cover_Type'], X.ix[:,'Wilderness_Area3'])
     Create_Plot(X.ix[:,'Cover_Type'], X.ix[:,'Wilderness_Area4'])
+    Create_WildPlot(X.ix[:,'Cover_Type'], X.ix[:,'Wilderness_Area1'], X.ix[:,'Wilderness_Area2'], X.ix[:,'Wilderness_Area3'], X.ix[:,'Wilderness_Area4'])   
+    
+def Create_WildPlot(X, y1, y2, y3, y4):
+    #Creates strip plot of x and y
+    xlab = X.name
+    ylab = 'Wilderness Area'
+    xlab = xlab.replace("_"," ")
+    figlab = ylab + " vs " + xlab
+    filelab =  "Plots/" + figlab.replace(" ","") + ".pdf"
+    f, ax = plt.subplots(figsize=(5, 5))
+    
+    y = y1
+    n = len(y)
+    
+    for i in range (0,n):
+        if y1[i] == 1:
+            y[i] = 1
+        elif y2[i] == 1:
+            y[i] = 2
+        elif y3[i] == 1:
+            y[i] = 3
+        elif y4[i] == 1:
+            y[i] = 4
+    
+    sns.stripplot(x = X, y = y, jitter = True, size = 5, linewidth = 0.1, ax = ax)
+    sns.plt.title(figlab)
+    sns.plt.xlabel(xlab)
+    sns.plt.ylabel(ylab)
+    savefig(filelab)
     
     
 def Create_Plot(X,y):
