@@ -102,7 +102,6 @@ def Create_WildPlot(X, y1, y2, y3, y4):
     sns.plt.ylabel(ylab)
     savefig(filelab)
     
-    
 def Create_Plot(X,y):
     #Creates strip plot of x and y
     xlab = X.name
@@ -128,26 +127,26 @@ def Preprocess(X, n):
     
     return X
     
-def fit_predict_model(X,y,XPred, yAns, model):
+def fit_predict_model(X,y,XPred, yAns, model, n_est):
     #fit a model to to data and make predictions
 
     if model == "gbm":
         # Setup a GBM classifier
-        clf = GradientBoostingClassifier(n_estimators=100, learning_rate=0.5, max_depth=10, random_state=0)
+        clf = GradientBoostingClassifier(n_estimators=n_est, learning_rate=0.5, max_depth=10, random_state=0)
         clf.fit(X, y) 
     elif model == "rf":
-        clf = RandomForestClassifier(n_estimators=100, random_state=0)
+        clf = RandomForestClassifier(n_estimators=n_est, random_state=0)
         clf = clf.fit(X, y)
     elif model == "xrf":
-        clf = ExtraTreesClassifier(n_estimators=500, random_state=0)
+        clf = ExtraTreesClassifier(n_estimators=n_est, random_state=0)
         clf = clf.fit(X, y)      
     elif model == "vote":
-        clf1 = GradientBoostingClassifier(n_estimators=100, learning_rate=0.5, max_depth=10, random_state=0)
-        clf2 = GradientBoostingClassifier(n_estimators=100, learning_rate=0.5, max_depth=10, random_state=1)
-        clf3 = RandomForestClassifier(n_estimators=100, random_state=0)
-        clf4 = RandomForestClassifier(n_estimators=100, random_state=1)
-        clf5 = ExtraTreesClassifier(n_estimators=500, random_state=0)
-        clf6 = ExtraTreesClassifier(n_estimators=500, random_state=1)
+        clf1 = GradientBoostingClassifier(n_estimators=40, learning_rate=0.5, max_depth=10, random_state=0)
+        clf2 = GradientBoostingClassifier(n_estimators=40, learning_rate=0.5, max_depth=10, random_state=1)
+        clf3 = RandomForestClassifier(n_estimators=600, random_state=0)
+        clf4 = RandomForestClassifier(n_estimators=600, random_state=1)
+        clf5 = ExtraTreesClassifier(n_estimators=900, random_state=0)
+        clf6 = ExtraTreesClassifier(n_estimators=900, random_state=1)
         
         clf = VotingClassifier(estimators=[('1', clf1), ('2', clf2), ('3', clf3),
                                            ('4', clf4), ('5', clf5), ('6', clf6)
@@ -159,11 +158,39 @@ def fit_predict_model(X,y,XPred, yAns, model):
     
     if yAns is not None:
         print "Accuracy for " + model + " :"
-        print Accuracy(yAns, yPred)    
+        print Accuracy(yAns, yPred)
+        return Accuracy(yAns, yPred)
     
     else:
         print "Finished training and prediction returned"
         return yPred
+
+def Optimize_Models(X1, y1, X2, y2):
+    #250 for GBM, 1000 used for RF and XRF    
+    val = 1000
+    
+    valdiv = val/10
+    LoopList = range(1,val+1)
+    Acc = range(0,10)
+    j=0    
+    
+    a = valdiv-1
+    for i in LoopList[a::valdiv]:
+        Acc[j] = fit_predict_model(X1, y1, X2, y2, "xrf", i)
+        print i
+        j+=1
+    
+    #Plot accuracy
+    xlab = 'Number of Estimators'
+    ylab = 'Accuracy'
+    figlab = ylab + " vs " + xlab
+    filelab =  "Plots/" + figlab.replace(" ","") + ".pdf"
+    f, ax = plt.subplots(figsize=(5, 5))
+    sns.plt.plot(range(valdiv,val+valdiv,valdiv),Acc, linewidth = 2)
+    sns.plt.title(figlab)
+    sns.plt.xlabel(xlab)
+    sns.plt.ylabel(ylab)
+    savefig(filelab)
 
 def Send_it(ids, pred):
     output = pd.DataFrame({"Id":ids, "Cover_Type":pred})
@@ -176,8 +203,9 @@ def Main():
     X_train, X_test, y_train, test_ids = Load_Data()
     
     #Preprocessing
+    #Not used because it reduces performance too much
     #X = pd.concat([X_train, X_test])
-    #X = Preprocess(X, 5)
+    #X = Preprocess(X, 20)
     #X_train, X_test = X[0:X_train.shape[0],:] , X[X_train.shape[0]:,:]    
     
     #Split Data into CV sets
@@ -191,15 +219,18 @@ def Main():
     
     #View Data    
     Plot_Data(X_train,y_train)
+    
+    #Optimize the model parameters
+    Optimize_Models(X_cvtrain,y_cvtrain,X_cvtest,y_cvtest)
         
     #Find Best model with CV sets
-    fit_predict_model(X_cvtrain,y_cvtrain,X_cvtest,y_cvtest, "gbm")
-    fit_predict_model(X_cvtrain,y_cvtrain,X_cvtest,y_cvtest, "rf")
-    fit_predict_model(X_cvtrain,y_cvtrain,X_cvtest,y_cvtest, "xrf")
-    fit_predict_model(X_cvtrain,y_cvtrain,X_cvtest,y_cvtest, "vote")
+    fit_predict_model(X_cvtrain,y_cvtrain,X_cvtest,y_cvtest, "gbm", 40)
+    fit_predict_model(X_cvtrain,y_cvtrain,X_cvtest,y_cvtest, "rf", 600)
+    fit_predict_model(X_cvtrain,y_cvtrain,X_cvtest,y_cvtest, "xrf", 900)
+    fit_predict_model(X_cvtrain,y_cvtrain,X_cvtest,y_cvtest, "vote", 100)
     
     #Train best model and get predictions on training set
-    pred = fit_predict_model(X_train,y_train,X_test,None, "vote")
+    pred = fit_predict_model(X_train,y_train,X_test,None, "vote", 100)
     
     #Send it! - Create Submission File
     Send_it(test_ids, pred)
