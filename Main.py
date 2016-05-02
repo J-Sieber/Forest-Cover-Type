@@ -3,15 +3,13 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.cross_validation import train_test_split
-from sklearn.grid_search import GridSearchCV
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier, VotingClassifier
 import seaborn as sns
 from pylab import savefig
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
-
-
+from sklearn.metrics import confusion_matrix
 
 def Load_Data():
     #load Data
@@ -215,7 +213,7 @@ def Main():
     Explore_Data(X_train, y_train, X_test)
 
     #Feature Engineering
-    
+    #To Do
     
     #View Data    
     Plot_Data(X_train,y_train)
@@ -229,6 +227,10 @@ def Main():
     fit_predict_model(X_cvtrain,y_cvtrain,X_cvtest,y_cvtest, "xrf", 900)
     fit_predict_model(X_cvtrain,y_cvtrain,X_cvtest,y_cvtest, "vote", 100)
     
+    #Output Confusion Matrix for CV Set
+    pred = fit_predict_model(X_cvtrain,y_cvtrain,X_cvtest,None, "vote", 100)
+    confusion_matrix(y_cvtest, pred)
+        
     #Train best model and get predictions on training set
     pred = fit_predict_model(X_train,y_train,X_test,None, "vote", 100)
     
