@@ -164,31 +164,51 @@ def fit_predict_model(X,y,XPred, yAns, model, n_est):
         return yPred
 
 def Optimize_Models(X1, y1, X2, y2):
-    #250 for GBM, 1000 used for RF and XRF    
-    val = 1000
-    
+ 
+    #GBM
+    val, valdiv, LoopList, Acc, j, a  = Get_Optimize_Vals(100)  
+    for i in LoopList[a::valdiv]:
+        Acc[j] = fit_predict_model(X1, y1, X2, y2, "gbm", i)
+        j+=1
+    Optimize_Plot(val, valdiv, Acc, "gbm")
+
+    #RF
+    val, valdiv, LoopList, Acc, j, a  = Get_Optimize_Vals(1000)  
+    for i in LoopList[a::valdiv]:
+        Acc[j] = fit_predict_model(X1, y1, X2, y2, "rf", i)
+        j+=1
+    Optimize_Plot(val, valdiv, Acc, "rf")
+        
+    #XRF
+    val, valdiv, LoopList, Acc, j, a  = Get_Optimize_Vals(1000)  
+    for i in LoopList[a::valdiv]:
+        Acc[j] = fit_predict_model(X1, y1, X2, y2, "xrf", i)
+        j+=1
+    Optimize_Plot(val, valdiv, Acc, "xrf")
+   
+def Get_Optimize_Vals(num):
+    val = num  
     valdiv = val/10
     LoopList = range(1,val+1)
     Acc = range(0,10)
-    j=0    
-    
+    j=0  
     a = valdiv-1
-    for i in LoopList[a::valdiv]:
-        Acc[j] = fit_predict_model(X1, y1, X2, y2, "xrf", i)
-        print i
-        j+=1
+    return val, valdiv, LoopList, Acc, j, a
     
+def Optimize_Plot(val, valdiv, Acc, model):
     #Plot accuracy
     xlab = 'Number of Estimators'
     ylab = 'Accuracy'
     figlab = ylab + " vs " + xlab
-    filelab =  "Plots/" + figlab.replace(" ","") + ".pdf"
+    filelab =  "Plots/" + figlab.replace(" ","") + "_" + model + ".pdf"
     f, ax = plt.subplots(figsize=(5, 5))
     sns.plt.plot(range(valdiv,val+valdiv,valdiv),Acc, linewidth = 2)
     sns.plt.title(figlab)
     sns.plt.xlabel(xlab)
     sns.plt.ylabel(ylab)
     savefig(filelab)
+    
+    
 
 def Send_it(ids, pred):
     output = pd.DataFrame({"Id":ids, "Cover_Type":pred})
