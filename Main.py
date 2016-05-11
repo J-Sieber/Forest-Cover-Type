@@ -54,6 +54,21 @@ def Explore_Data(X, y, Xt):
     print "Names of catagories:"
     print np.nonzero(np.bincount(y))[0]
     
+    Basic_Stats(X, 'Slope')
+    Basic_Stats(X, 'Aspect')
+    Basic_Stats(X, 'Elevation')
+    Basic_Stats(X, 'Horizontal_Distance_To_Hydrology')
+    Basic_Stats(X, 'Vertical_Distance_To_Hydrology')
+    Basic_Stats(X, 'Hillshade_Noon')
+    
+def Basic_Stats(X, name):
+    print "Min " + name + " :"
+    print np.min(X.ix[:,name])
+    print "Avg " + name + " :"
+    print np.mean(X.ix[:,name])
+    print "Max " + name + " :"
+    print np.max(X.ix[:,name])  
+    
 def Plot_Data(X,y):
     
     #Data
@@ -207,8 +222,6 @@ def Optimize_Plot(val, valdiv, Acc, model):
     sns.plt.xlabel(xlab)
     sns.plt.ylabel(ylab)
     savefig(filelab)
-    
-    
 
 def Send_it(ids, pred):
     output = pd.DataFrame({"Id":ids, "Cover_Type":pred})
@@ -220,20 +233,11 @@ def Main():
     #Get Data
     X_train, X_test, y_train, test_ids = Load_Data()
     
-    #Preprocessing
-    #Not used because it reduces performance too much
-    #X = pd.concat([X_train, X_test])
-    #X = Preprocess(X, 20)
-    #X_train, X_test = X[0:X_train.shape[0],:] , X[X_train.shape[0]:,:]    
-    
     #Split Data into CV sets
     X_cvtrain, y_cvtrain, X_cvtest, y_cvtest = Create_CVset(X_train, y_train)
         
     #Basic Statistics of Data
     Explore_Data(X_train, y_train, X_test)
-
-    #Feature Engineering
-    #To Do
     
     #View Data    
     Plot_Data(X_train,y_train)
