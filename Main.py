@@ -10,6 +10,7 @@ from pylab import savefig
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.metrics import confusion_matrix
+from sklearn import preprocessing
 
 def Load_Data():
     #load Data
@@ -132,6 +133,12 @@ def Create_Plot(X,y):
 
 def Preprocess(X, n):
     #Preprocessing for data
+    
+    #Scale Data
+    min_max_scaler = preprocessing.MinMaxScaler()
+    X = min_max_scaler.fit_transform(X)
+    
+    #PCA
     pca = PCA(n_components = n)
     pca.fit(X)
     X = pca.transform(X)
@@ -232,6 +239,11 @@ def Main():
     
     #Get Data
     X_train, X_test, y_train, test_ids = Load_Data()
+    
+    #Preprocessing
+    #X = pd.concat([X_train, X_test])
+    #X = Preprocess(X, 45)
+    #X_train, X_test = X[0:X_train.shape[0],:] , X[X_train.shape[0]:,:] 
     
     #Split Data into CV sets
     X_cvtrain, y_cvtrain, X_cvtest, y_cvtest = Create_CVset(X_train, y_train)
